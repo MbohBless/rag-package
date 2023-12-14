@@ -1,3 +1,5 @@
+import { format_results_full } from "../utils/formatters";
+
 export class Embedding{
     embedding: number[];
     text: string;
@@ -34,3 +36,40 @@ export abstract class Embedder{
     abstract embed(text: string): Embedding;
     abstract embed_batch(texts: string[]): Embedding[];
 }
+
+export class SearchResults{
+    content: string;
+    constructor(content: string){
+        this.content = content;
+    }
+}
+
+export abstract class Tool {
+    name: string;
+    constructor(name: string){
+        this.name = name;
+    }
+}
+
+export abstract class Searcher extends Tool{
+    tool_description: string;
+    constructor(name: string, tool_description: string){
+        super(name);
+        this.tool_description = tool_description;
+    }
+    abstract raw_search(text: string): SearchResults[];
+    abstract process_raw_search_results(raw_results: SearchResults[]): string[];
+    search(text:string, limit:number): string{
+      const raw_search_results = this.raw_search(text);
+      const processed_search_results = this.process_raw_search_results(raw_search_results);
+      const displayable = format_results_full(processed_search_results);  
+      return displayable;
+    }
+
+}
+
+
+
+
+
+// 
