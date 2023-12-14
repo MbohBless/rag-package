@@ -16,3 +16,4 @@ describe('format_results_full', ()=>{
         expect(formatted).toBe('<search_results>\n<item index=0>\n<page_content>\nhello\n</page_content></item>\n<item index=1>\n<page_content>\nworld\n</page_content></item>\n</search_results>');
     });
 });
+// 
