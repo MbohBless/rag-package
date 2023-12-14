@@ -57,15 +57,20 @@ export abstract class Searcher extends Tool{
         super(name);
         this.tool_description = tool_description;
     }
-    abstract raw_search(text: string): SearchResults[];
+    abstract raw_search(text: string, limit:number): SearchResults[];
     abstract process_raw_search_results(raw_results: SearchResults[]): string[];
     search(text:string, limit:number): string{
-      const raw_search_results = this.raw_search(text);
+      const raw_search_results = this.raw_search(text, limit);
       const processed_search_results = this.process_raw_search_results(raw_search_results);
       const displayable = format_results_full(processed_search_results);  
       return displayable;
     }
 
+}
+
+export abstract class VectorStore{
+    abstract upsert(text: string, embedding: Embedding[]): void;
+    abstract query(text: string, limit: number): Embedding[];
 }
 
 
