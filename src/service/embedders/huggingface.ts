@@ -13,7 +13,7 @@ class HuggingFaceEmbedder extends Embedder {
     constructor(api_key: string, model_name: string) {
         super(-1);
         this.model_name = model_name;
-        this.base_url = `https://api-inference.huggingface.co/models/${model_name}`;
+        this.base_url = `https://api-inference.huggingface.co/pipeline/feature-extraction/${model_name}`;
         this.headers = {'Authorization': `Bearer ${api_key}`}
         this.config_url = `https://huggingface.co/${this.model_name}/resolve/main/config.json`
         const configClient = createAxiosClient(this.config_url, {})
@@ -24,7 +24,7 @@ class HuggingFaceEmbedder extends Embedder {
 
         }).catch((error) => {
             logger.error(`Error fetching config from ${this.config_url}`)
-            logger.error(error)
+            // console.log(error.message)
             throw CustomError(error.message).status(error.statusCode || 500)
         })
 
@@ -37,10 +37,17 @@ class HuggingFaceEmbedder extends Embedder {
 
     async embed_batch(texts: string[]): Promise<Embedding[]> {
         const client = createAxiosClient(this.base_url, this.headers);
-        const data = {inputs: texts}
+        const data = {
+            "inputs": [
+                ...texts
+            ]
+        }
         logger.info(`Sending data to ${this.base_url}`)
         try {
-            const response = await client.post(this.base_url, data)
+
+            const response = await client.post(this.base_url, 
+                JSON.stringify(data),
+                )
             logger.info(`Data sent to ${this.base_url}`)
             const embeddings = response.data;
             if (!Array.isArray(embeddings)) {
@@ -52,9 +59,9 @@ class HuggingFaceEmbedder extends Embedder {
             return embeddings.map((embedding, index) => {
                 return new Embedding(embedding, texts[index])
             })
-        } catch (error) {
+        } catch (error: any) {
             logger.error(`Error sending data to ${this.base_url}`)
-            logger.error(error)
+            console.log(error.message)
             throw CustomError("There was an error working with the data").status(500)
         }
     }

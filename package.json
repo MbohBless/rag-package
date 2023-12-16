@@ -2,10 +2,11 @@
   "name": "claude-retrive-ts",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "jest",
-    "typescript": "tsc"
+    "typescript": "tsc",
+    "start": "npm run typescript && node index.js"
   },
   "keywords": [],
   "author": "",

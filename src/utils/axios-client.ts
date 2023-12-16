@@ -8,9 +8,7 @@ const createAxiosClient = (
 
     const client = axios.create({
         baseURL,
-        headers: {
-            ...headers,
-        },
+        headers: headers,
     });
     axiosRetry(client, { retries: 3 });
     return client;
