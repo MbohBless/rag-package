@@ -8,16 +8,43 @@ import { createInterface } from "readline";
 class LocalVectorStore extends VectorStore{
     private readonly storagePath: string;
     private readonly embeddings: Embedding[];
+    private embeddings_matrix: number[][];
+    
     constructor(storagePath: string){
         super();
         this.storagePath = storagePath;
         this.embeddings = [];
+        this.embeddings_matrix = [];
         if (!fs.existsSync(this.storagePath)){
             log.info(`Creating storage path ${this.storagePath}`);
             fs.mkdirSync(this.storagePath);
         }
+        this.__loadData();
+
     }
 
+    __create_normed_embedding_matrix():void{
+        this.embeddings.forEach((embedding)=>{
+            this.embeddings_matrix.push(embedding.embedding);
+        });
+        if(this.embeddings_matrix.length>0){
+            const normed_embeddings = this.__normalize(this.embeddings_matrix);
+            this.embeddings.forEach((embedding, index)=>{
+                embedding.embedding = normed_embeddings[index];
+            });
+           return; 
+        }
+        this.embeddings_matrix = [];
+    }
+
+    __normalize(embeddings: number[][]): number[][]{
+        const normed_embeddings: number[][] = [];
+        embeddings.forEach((embedding)=>{
+            const norm = Math.sqrt(embedding.reduce((acc, val)=>acc+val*val, 0));
+            normed_embeddings.push(embedding.map((val)=>val/norm));
+        });
+        return normed_embeddings;
+    }
      __loadData(): void {
         // split the path and esure that file ends with .jsonl
         const path = this.storagePath.split('/');
@@ -34,9 +61,6 @@ class LocalVectorStore extends VectorStore{
         }).on('close', () => {
             log.info(`Loaded ${this.embeddings.length} embeddings from ${this.storagePath}`);
         });
-
-        
-  
     }
     upsert(text: string, embedding: Embedding[]): void {
         throw new Error("Method not implemented.");
