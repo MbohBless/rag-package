@@ -81,9 +81,9 @@ export abstract class Searcher extends Tool {
 }
 
 export abstract class VectorStore {
-    abstract upsert(text: string, embedding: Embedding[]): void;
+    abstract upsert( embedding: Embedding[]): void;
 
-    abstract query(text: string, limit: number): Embedding[];
+    abstract query(query_embedding:Embedding, limit: number): SearchResults[];
 }
 
 
