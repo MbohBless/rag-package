@@ -1,5 +1,5 @@
 import readline from 'readline';
-import HuggingFaceEmbedder from './service/embedders/huggingface';
+import {HuggingFaceEmbedder} from './service/embedders';
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -23,10 +23,8 @@ async function main() {
     const token = "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"
     const model_id = "sentence-transformers/all-MiniLM-L6-v2"
     const embedder = new HuggingFaceEmbedder(token, model_id);
-    console.log("Embedding sentence: ", userSentence);
-    console.log("\n\n\n")
+   
     const embedding = await embedder.embed_batch(["hello", "world"]);
-    console.log(embedding);
     rl.close();
 }
 

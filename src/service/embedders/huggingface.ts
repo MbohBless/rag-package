@@ -1,7 +1,7 @@
 import createAxiosClient from "../../utils/axios-client";
 import {Embedder, Embedding} from "../types"
-import logger from "../../utils/logger";
 import CustomError from "../../utils/custom-error";
+import log from "../../utils/logger";
 
 // create  the embedder 
 class HuggingFaceEmbedder extends Embedder {
@@ -17,14 +17,11 @@ class HuggingFaceEmbedder extends Embedder {
         this.headers = {'Authorization': `Bearer ${api_key}`}
         this.config_url = `https://huggingface.co/${this.model_name}/resolve/main/config.json`
         const configClient = createAxiosClient(this.config_url, {})
-        logger.info(`Fetching config from ${this.config_url}`)
         configClient.get(this.config_url).then((response) => {
             this.dim = response.data['hidden_size'];
-            logger.info(`Config fetched from ${this.config_url} with dim ${this.dim}`)
 
         }).catch((error) => {
-            logger.error(`Error fetching config from ${this.config_url}`)
-            // console.log(error.message)
+            log.error(`Error fetching config from ${this.config_url}`)
             throw CustomError(error.message).status(error.statusCode || 500)
         })
 
@@ -42,13 +39,13 @@ class HuggingFaceEmbedder extends Embedder {
                 ...texts
             ]
         }
-        logger.info(`Sending data to ${this.base_url}`)
+        log.info(`Sending data to ${this.base_url}`)
         try {
 
             const response = await client.post(this.base_url, 
                 JSON.stringify(data),
                 )
-            logger.info(`Data sent to ${this.base_url}`)
+            log.info(`Data sent to ${this.base_url}`)
             const embeddings = response.data;
             if (!Array.isArray(embeddings)) {
                 throw CustomError("Embeddings are not of the format list").status(500)
@@ -60,7 +57,7 @@ class HuggingFaceEmbedder extends Embedder {
                 return new Embedding(embedding, texts[index])
             })
         } catch (error: any) {
-            logger.error(`Error sending data to ${this.base_url}`)
+            log.error(`Error sending data to ${this.base_url}`)
             console.log(error.message)
             throw CustomError("There was an error working with the data").status(500)
         }
